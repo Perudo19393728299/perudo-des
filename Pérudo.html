@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width">
+<style>
+body{background:#111;color:#fff;text-align:center;font-family:Arial;padding:10px}
+#zone{display:flex;justify-content:center;gap:10px;margin:20px 0;flex-wrap:wrap}
+.de{width:60px;height:60px;background:#333;border:2px solid #555;
+border-radius:12px;font-size:40px;display:flex;align-items:center;justify-content:center}
+.btn{padding:12px 20px;font-size:16px;margin:5px;border:none;border-radius:10px;
+font-weight:bold;cursor:pointer}
+.btn1{background:#e63946;color:#fff} /* Enlever */
+.btn2{background:#2a9d8f;color:#fff} /* Relancer */
+.btn3{background:#457b9d;color:#fff} /* Recommencer */
+#compteur{font-size:18px;margin:10px}
+</style>
+</head>
+<body>
+<h1>🎲 PÉRUDO</h1>
+<p id="compteur">Dés restants : 5</p>
+<div id="zone"></div>
+
+<button class="btn btn1" onclick="enlever()">- ENLEVER 1 DÉ</button><br>
+<button class="btn btn2" onclick="relancer()">RELANCER</button>
+<button class="btn btn3" onclick="recommencer()">RECOMMENCER À 5</button>
+
+<script>
+let nbDes = 5;
+const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+function afficherDes(cacher=true){
+  let zone=document.getElementById('zone');
+  zone.innerHTML='';
+  for(let i=0;i<nbDes;i++){
+    let d=document.createElement('div');
+    d.className='de';
+    d.innerText = cacher ? '?' : faces[Math.floor(Math.random()*6)];
+    zone.appendChild(d);
+  }
+  document.getElementById('compteur').innerText = 'Dés restants : ' + nbDes;
+}
+
+function enlever(){
+  if(nbDes > 0){
+    nbDes--;
+    afficherDes(true); // on recache tout
+  }
+}
+
+function relancer(){
+  if(nbDes > 0){
+    afficherDes(false); // on montre les vrais dés
+  }
+}
+
+function recommencer(){
+  nbDes = 5;
+  afficherDes(true);
+}
+
+// Départ : 5 dés cachés
+afficherDes(true);
+</script>
+</body>
+</html>
