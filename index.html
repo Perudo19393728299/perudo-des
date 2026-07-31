@@ -3,72 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perudo vs Bot</title>
+<title>Perudo</title>
 <style>
-  body { font-family: Arial; text-align: center; background: #1a1a2e; color: white; padding: 20px; }
-  h1 { color: #f0a500; }
- .des { font-size: 40px; margin: 10px; display: inline-block; }
-  button { background: #f0a500; color: #1a1a2e; border: none; padding: 12px 15px; margin: 5px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
-  button:hover { background: #ffc107; }
-  #info { margin: 20px; font-size: 18px; background: #16213e; padding: 15px; border-radius: 10px; }
-  input { padding: 8px; width: 60px; text-align: center; border-radius: 5px; border: none; }
-  .perudo { color: #ff4d4d; font-weight: bold; }
+  body { font-family: 'Arial'; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; min-height: 100vh; }
+  h1 { font-size: 48px; text-shadow: 3px 3px 6px rgba(0,0,0,0.3); margin-bottom: 10px; }
+ .container { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; max-width: 600px; margin: 0 auto; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+ .des-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin: 20px 0; }
+ .de { width: 60px; height: 60px; background: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: bold; color: #764ba2; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+  button { background: #f0a500; color: #1a1a2e; border: none; padding: 15px 25px; margin: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 16px; transition: all 0.3s; }
+  button:hover { background: #ffc107; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+  #info { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; margin: 20px 0; font-size: 18px; }
+  input { padding: 10px; width: 80px; text-align: center; border-radius: 8px; border: none; font-size: 18px; margin: 0 5px; }
+.perudo { color: #ff6b6b; font-weight: bold; }
+.cache { display: none; }
 </style>
 </head>
 <body>
 
-<h1>🎲 Perudo vs Bot 🎲</h1>
+<h1>🎲 PERUDO 🎲</h1>
 
-<button onclick="nouvellePartie()">Nouvelle Partie</button>
+<div class="container">
+  <div id="menu">
+    <h2>Choisis ton mode</h2>
+    <button onclick="lancerMode('ami')">2 Joueurs sur le même tel</button>
+    <button onclick="lancerMode('bot')">Jouer contre le Bot</button>
+  </div>
 
-<div id="mesDes"><h2>Mes Dés:</h2></div>
+  <div id="jeu" class="cache">
+    <button onclick="retourMenu()">← Menu</button>
+    <button onclick="nouvellePartie()">🎲 Relancer les dés</button>
 
-<div id="info">
-  <p><b>Dernière mise:</b> <span id="derniereMise">Aucune</span></p>
-  <p><b>Tour de:</b> <span id="tour">Toi</span></p>
-</div>
+    <h2 id="titreJoueur">Joueur 1</h2>
+    <div id="mesDes" class="des-container"></div>
 
-<div id="actions">
-  <h3>Ton tour</h3>
-  Quantité: <input type="number" id="quantite" value="1" min="1">
-  Valeur: <input type="number" id="valeur" value="1" min="1" max="6">
-  <br>
-  <button onclick="jouerMise()">Miser</button>
-  <button onclick="jouerPerudo()">PERUDO</button>
-  <button onclick="jouerDudo()" style="background:#ff4d4d">TU MENS</button>
-  <button onclick="jouerCalza()" style="background:#00d4ff">CALZA</button>
+    <div id="botDesContainer" class="cache">
+      <h3>Dés du Bot</h3>
+      <div id="botDes" class="des-container"></div>
+    </div>
+
+    <div id="info">
+      <p><b>Dernière mise:</b> <span id="derniereMise">Aucune</span></p>
+      <p><b>Tour de:</b> <span id="tour">Joueur 1</span></p>
+    </div>
+
+    <div id="actions">
+      <h3>Faire une action</h3>
+      Quantité: <input type="number" id="quantite" value="1" min="1">
+      Valeur: <input type="number" id="valeur" value="1" min="1" max="6">
+      <br><br>
+      <button onclick="jouerMise()">Miser</button>
+      <button onclick="jouerPerudo()" style="background:#ff6b6b">PERUDO</button>
+      <button onclick="jouerDudo()" style="background:#ff4757">TU MENS</button>
+      <button onclick="jouerCalza()" style="background:#2ed573">CALZA</button>
+    </div>
+  </div>
 </div>
 
 <script>
-let mesDes = [];
-let botDes = [];
+let mode = '';
+let joueurActuel = 1;
+let j1Des = [];
+let j2Des = [];
 let derniereMise = null;
-let tourJoueur = true;
+
+function lancerMode(m) {
+  mode = m;
+  document.getElementById("menu").classList.add("cache");
+  document.getElementById("jeu").classList.remove("cache");
+  if(mode === 'bot') document.getElementById("botDesContainer").classList.remove("cache");
+  nouvellePartie();
+}
+
+function retourMenu() {
+  document.getElementById("menu").classList.remove("cache");
+  document.getElementById("jeu").classList.add("cache");
+}
 
 function lancerDes() {
-  mesDes = []; botDes = [];
+  j1Des = []; j2Des = [];
   for(let i=0; i<5; i++){
-    mesDes.push(Math.floor(Math.random() * 6) + 1);
-    botDes.push(Math.floor(Math.random() * 6) + 1);
+    j1Des.push(Math.floor(Math.random() * 6) + 1);
+    j2Des.push(Math.floor(Math.random() * 6) + 1);
   }
 }
 
 function afficherDes() {
+  let desAAfficher = joueurActuel === 1? j1Des : j2Des;
+  document.getElementById("titreJoueur").innerText = joueurActuel === 1? "Joueur 1" : (mode === 'bot'? "Bot" : "Joueur 2");
+
   let div = document.getElementById("mesDes");
-  div.innerHTML = "<h2>Mes Dés:</h2>";
-  mesDes.forEach(d => { div.innerHTML += `<span class="des">${d}</span>`; });
+  div.innerHTML = "";
+  desAAfficher.forEach(d => { div.innerHTML += `<div class="de">${d}</div>`; });
+
+  if(mode === 'bot'){
+    let divBot = document.getElementById("botDes");
+    divBot.innerHTML = "";
+    j2Des.forEach(d => { divBot.innerHTML += `<div class="de" style="opacity:0.4">${d}</div>`; });
+  }
 }
 
 function nouvellePartie() {
   lancerDes(); afficherDes();
-  derniereMise = null; tourJoueur = true;
+  derniereMise = null; joueurActuel = 1;
   document.getElementById("derniereMise").innerText = "Aucune";
-  document.getElementById("tour").innerText = "Toi";
+  document.getElementById("tour").innerText = "Joueur 1";
   document.getElementById("actions").style.display = "block";
+}
+
+function passerTour() {
+  joueurActuel = joueurActuel === 1? 2 : 1;
+  document.getElementById("tour").innerText = joueurActuel === 1? "Joueur 1" : (mode === 'bot'? "Bot" : "Joueur 2");
+  afficherDes();
+  if(mode === 'bot' && joueurActuel === 2) setTimeout(botJoue, 1200);
 }
 
 function jouerMise() {
   let q = parseInt(document.getElementById("quantite").value);
   let v = parseInt(document.getElementById("valeur").value);
-  
-  if(derniereMise && (q < derniereMise.quantite
+  if(derniereMise && (q < derniereMise.quantite || (q == derniereMise.quantite && v <= derniereMise.valeur))){ alert("La mise doit être plus haute!"); return; }
+  derniereMise = {quantite: q, valeur: v, perudo: false};
+  document.getElementById("derniereMise").innerText = `${q} x ${v}`;
+  document.getElementById("actions").style.display = "none";
+  passerTour();
+}
+
+function jouerPerudo(){
+  if(!derniereMise || derniereMise.quantite < 2){ alert("Impossible de faire PERUDO"); return; }
+  let q = Math.ceil(derniereMise.quantite / 2);
+  derniereMise = {quantite: q, valeur: derniereMise.valeur, perudo: true};
+  document.getElementById("derniereMise").innerHTML = `<span class="perudo">${q} PERUDO de ${derniereMise.valeur}</span>`;
+  document.getElementById("actions").style.display = "none";
+  passerTour();
+}
+
+function compterTotal(valeur){
+  let total = 0;
+  [...j1Des,...j2Des].forEach(d => { if(d == valeur || d == 1) total++; });
+  return total;
+}
+
+function jouerDudo() {
+  if(!derniereMise){ alert("Pas de mise!"); return; }
+  let total = compterTotal(derniereMise.valeur);
+  let penalite = derniereMise.perudo? 2 : 1;
+  let perdant = total >= derniereMise.quantite? joueurActuel : (joueurActuel === 1? 2 : 1);
+  alert(`Il y avait ${total} x ${derniereMise.valeur}.\nJoueur ${perdant} perd ${penalite} dé(s).`);
+  nouvellePartie();
+}
+
+function jouerCalza(){
+  if(!derniereMise){ alert("Pas de mise!"); return; }
+  let total = compterTotal(derniereMise.valeur);
+  if(total == derniereMise.quantite){ alert(`CALZA! Il y avait bien ${total}. Joueur ${joueurActuel} gagne 1 dé!`); }
+  else { alert(`Raté CALZA! Il y avait ${total}. Joueur ${joueurActuel} perd 1 dé.`); }
+  nouvellePartie();
+}
+
+function botJoue() {
+  let compteBot = {}; j2Des.forEach(d => compteBot[d] = (compteBot[d] || 0) + 1);
+  let meilleureValeur = 2; let max = 0;
+  for(let i=2; i<=6; i++){ if((compteBot[i] || 0) > max){ max = compteBot[i]; meilleureValeur = i; } }
+
+  if(derniereMise && derniereMise.quantite > 2 && Math.random() < 0.25) {
+    let q = Math.ceil(derniereMise.quantite / 2);
+    derniereMise = {quantite: q, valeur: derniereMise.valeur, perudo: true};
+    document.getElementById("derniereMise").innerHTML = `<span class="perudo">${q} PERUDO de ${derniereMise.valeur}</span>`;
+  }
+  else if(derniereMise && Math.random() < 0.3 && derniereMise.quantite > 4) {
+    jouerDudo(); return;
+  }
+  else {
+    let nouvelleQuantite = derniereMise? derniereMise.quantite + 1 : max + 1;
+    derniereMise = {quantite: nouvelleQuantite, valeur: meilleureValeur, perudo: false};
+    document.getElementById("derniereMise").innerText = `${nouvelleQuantite} x ${meilleureValeur}`;
+  }
+  document.getElementById("actions").style.display = "block";
+  passerTour();
+}
+</script>
+
+</body>
+</html>
