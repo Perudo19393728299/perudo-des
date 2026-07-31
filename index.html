@@ -1,65 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-<meta name="viewport" content="width=device-width">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perudo vs Bot</title>
 <style>
-body{background:#111;color:#fff;text-align:center;font-family:Arial;padding:10px}
-#zone{display:flex;justify-content:center;gap:10px;margin:20px 0;flex-wrap:wrap}
-.de{width:60px;height:60px;background:#333;border:2px solid #555;
-border-radius:12px;font-size:40px;display:flex;align-items:center;justify-content:center}
-.btn{padding:12px 20px;font-size:16px;margin:5px;border:none;border-radius:10px;
-font-weight:bold;cursor:pointer}
-.btn1{background:#e63946;color:#fff} /* Enlever */
-.btn2{background:#2a9d8f;color:#fff} /* Relancer */
-.btn3{background:#457b9d;color:#fff} /* Recommencer */
-#compteur{font-size:18px;margin:10px}
+  body { font-family: Arial; text-align: center; background: #1a1a2e; color: white; padding: 20px; }
+  h1 { color: #f0a500; }
+ .des { font-size: 40px; margin: 10px; display: inline-block; }
+  button { background: #f0a500; color: #1a1a2e; border: none; padding: 12px 15px; margin: 5px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px; }
+  button:hover { background: #ffc107; }
+  #info { margin: 20px; font-size: 18px; background: #16213e; padding: 15px; border-radius: 10px; }
+  input { padding: 8px; width: 60px; text-align: center; border-radius: 5px; border: none; }
+  .perudo { color: #ff4d4d; font-weight: bold; }
 </style>
 </head>
 <body>
-<h1>🎲 PÉRUDO</h1>
-<p id="compteur">Dés restants : 5</p>
-<div id="zone"></div>
 
-<button class="btn btn1" onclick="enlever()">- ENLEVER 1 DÉ</button><br>
-<button class="btn btn2" onclick="relancer()">RELANCER</button>
-<button class="btn btn3" onclick="recommencer()">RECOMMENCER À 5</button>
+<h1>🎲 Perudo vs Bot 🎲</h1>
+
+<button onclick="nouvellePartie()">Nouvelle Partie</button>
+
+<div id="mesDes"><h2>Mes Dés:</h2></div>
+
+<div id="info">
+  <p><b>Dernière mise:</b> <span id="derniereMise">Aucune</span></p>
+  <p><b>Tour de:</b> <span id="tour">Toi</span></p>
+</div>
+
+<div id="actions">
+  <h3>Ton tour</h3>
+  Quantité: <input type="number" id="quantite" value="1" min="1">
+  Valeur: <input type="number" id="valeur" value="1" min="1" max="6">
+  <br>
+  <button onclick="jouerMise()">Miser</button>
+  <button onclick="jouerPerudo()">PERUDO</button>
+  <button onclick="jouerDudo()" style="background:#ff4d4d">TU MENS</button>
+  <button onclick="jouerCalza()" style="background:#00d4ff">CALZA</button>
+</div>
 
 <script>
-let nbDes = 5;
-const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+let mesDes = [];
+let botDes = [];
+let derniereMise = null;
+let tourJoueur = true;
 
-function afficherDes(cacher=true){
-  let zone=document.getElementById('zone');
-  zone.innerHTML='';
-  for(let i=0;i<nbDes;i++){
-    let d=document.createElement('div');
-    d.className='de';
-    d.innerText = cacher ? '?' : faces[Math.floor(Math.random()*6)];
-    zone.appendChild(d);
-  }
-  document.getElementById('compteur').innerText = 'Dés restants : ' + nbDes;
-}
-
-function enlever(){
-  if(nbDes > 0){
-    nbDes--;
-    afficherDes(true); // on recache tout
+function lancerDes() {
+  mesDes = []; botDes = [];
+  for(let i=0; i<5; i++){
+    mesDes.push(Math.floor(Math.random() * 6) + 1);
+    botDes.push(Math.floor(Math.random() * 6) + 1);
   }
 }
 
-function relancer(){
-  if(nbDes > 0){
-    afficherDes(false); // on montre les vrais dés
-  }
+function afficherDes() {
+  let div = document.getElementById("mesDes");
+  div.innerHTML = "<h2>Mes Dés:</h2>";
+  mesDes.forEach(d => { div.innerHTML += `<span class="des">${d}</span>`; });
 }
 
-function recommencer(){
-  nbDes = 5;
-  afficherDes(true);
+function nouvellePartie() {
+  lancerDes(); afficherDes();
+  derniereMise = null; tourJoueur = true;
+  document.getElementById("derniereMise").innerText = "Aucune";
+  document.getElementById("tour").innerText = "Toi";
+  document.getElementById("actions").style.display = "block";
 }
 
-// Départ : 5 dés cachés
-afficherDes(true);
-</script>
-</body>
-</html>
+function jouerMise() {
+  let q = parseInt(document.getElementById("quantite").value);
+  let v = parseInt(document.getElementById("valeur").value);
+  
+  if(derniereMise && (q < derniereMise.quantite
